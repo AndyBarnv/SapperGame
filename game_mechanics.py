@@ -1,6 +1,8 @@
 import random
 import enum
 
+from pprint import pprint
+
 
 class Difficulties(enum.Enum):
     EASY = 1
@@ -13,6 +15,8 @@ class CellStates(enum.Enum):
     hidden_bomb = 10
     opened_bomb = 11
     is_opened = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+    marked_bomb = 25
+    marked_cell = 26
 
 
 class GameStates(enum.Enum):
@@ -27,14 +31,19 @@ class Sapper:
             self.width = 9
             self.height = 9
             self.mines = 10
+            self.flags_count = 10
+
         elif difficulty == Difficulties.NORMAL:
             self.width = 16
             self.height = 16
             self.mines = 40
+            self.flags_count = 40
+
         elif difficulty == Difficulties.HARD:
             self.width = 30
             self.height = 16
             self.mines = 99
+            self.flags_count = 99
 
         self.state = GameStates.GAME
         self.board = [[CellStates.hidden] * self.width for _ in range(self.height)]
@@ -60,6 +69,30 @@ class Sapper:
                     mines += 1
         return mines
 
+    def set_flag(self, x, y):
+        """
+        Метод, с помощью которого мы ставим/убираем флаги на поле. Меняет количество поставленных флагов (self.flags_count)
+        В зависимости от ситуаций.
+        :param x:
+        :param y:
+        :return:
+        """
+        if self.board[y][x] == CellStates.hidden_bomb and self.flags_count > 0:
+            self.board[y][x] = CellStates.marked_bomb
+            self.flags_count -= 1
+
+        elif self.board[y][x] == CellStates.hidden and self.flags_count > 0:
+            self.board[y][x] = CellStates.marked_cell
+            self.flags_count -= 1
+
+        elif self.board[y][x] == CellStates.marked_bomb:
+            self.board[y][x] = CellStates.hidden_bomb
+            self.flags_count += 1
+
+        elif self.board[y][x] == CellStates.marked_cell:
+            self.board[y][x] = CellStates.hidden
+            self.flags_count += 1
+
     def open_cell(self, x, y):
         if self.board[y][x] == CellStates.hidden_bomb:
             for (x, y) in self.bombs:
@@ -78,3 +111,6 @@ class Sapper:
                             self.open_cell(j, i)
             if self.opened_cells == self.safe_cells:
                 self.state = GameStates.WIN
+
+
+

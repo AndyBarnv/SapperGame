@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
         elif status == AppStatus.GAME:
             print(f"Играем. Сложность: {difficult}")
-            # print(f"Сложность = {difficult}")
+
         pygame.display.flip()
         clock.tick(FPS)
 

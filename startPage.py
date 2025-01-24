@@ -18,6 +18,14 @@ class Button:
 
 
 def draw_button(surface, text, rect, color):
+    """
+    Вспомогательная функция. Отрисовывает прямоугольник с текстом поверх.
+    :param surface:
+    :param text:
+    :param rect:
+    :param color:
+    :return:
+    """
     font = pygame.font.Font(None, 30)
     pygame.draw.rect(surface, color, rect)
     text_surface = font.render(text, True, pygame.color.Color("white"))
@@ -53,6 +61,12 @@ def start_render_text(screen, WIDTH, HEIGHT):
 
 
 def load_image(name, colorkey=None):
+    """
+    Передаваемый файл ищется в директории "data".
+    :param name:
+    :param colorkey:
+    :return:
+    """
     fullname = os.path.join('data', name)
     # если файл не существует, то выходим
     if not os.path.isfile(fullname):
@@ -63,6 +77,10 @@ def load_image(name, colorkey=None):
 
 
 def terminate():
+    """
+    Завершает приложение.
+    :return:
+    """
     pygame.quit()
     sys.exit()
 
