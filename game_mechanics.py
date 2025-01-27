@@ -20,6 +20,7 @@ class CellStates(enum.Enum):
 
 
 class GameStates(enum.Enum):
+    PAUSE = 0
     GAME = 1
     WIN = 2
     END = 3
@@ -65,7 +66,7 @@ class Sapper:
             for j in range(x - 1, x + 2):
                 if j < 0 or j >= self.width or i < 0 or i >= self.height or (i == y and j == x):
                     continue
-                if self.board[i][j] == CellStates.hidden_bomb:
+                if self.board[i][j] == CellStates.hidden_bomb or self.board[i][j] == CellStates.marked_bomb:
                     mines += 1
         return mines
 
@@ -113,4 +114,24 @@ class Sapper:
                 self.state = GameStates.WIN
 
 
+class Time:
+    """
+    Класс счётчика времени для таймера.
+    """
+    def __init__(self):
+        self.minutes = 0
+        self.seconds = 0
+        self.cur_frame = 0
+        self.state = GameStates.PAUSE
 
+    def update(self):
+        if self.state == GameStates.GAME:
+            self.cur_frame = (self.cur_frame + 1) % 60
+            if not self.cur_frame:
+                sec = self.seconds + 1
+                self.minutes += sec // 60
+                self.seconds = sec % 60
+                self.tech_print() # техническая строка
+
+    def tech_print(self):
+        print(self.minutes, self.seconds)

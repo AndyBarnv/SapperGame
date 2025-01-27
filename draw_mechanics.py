@@ -1,6 +1,6 @@
 import pygame
 
-from game_mechanics import Sapper, Difficulties, CellStates, GameStates
+from game_mechanics import Sapper, Difficulties, CellStates, GameStates, Time
 from startPage import load_image, terminate
 
 
@@ -68,6 +68,7 @@ class Menu:
         self.difficult = difficult
         self.size_square = (29, 29)
         self.sapper = Sapper(difficult)
+        self.time = Time()  # Объект класса счётчика времени
 
         self.init_all()
         self.draw_board()
@@ -173,8 +174,13 @@ class Menu:
 
         if self.sapper.state == GameStates.END:
             print("Хана. Попал на бомбу.")
+            self.time.state = GameStates.END
             self.end_game()
             # Нужно закончить игру и открыть все бомбы.
+
+        elif self.sapper.state == GameStates.WIN:
+            print('Ура, победа!')
+            self.time.state = GameStates.WIN
 
     def get_click(self, mouse_pos, btn):
         """
@@ -212,6 +218,8 @@ class Menu:
             image = load_image(DIR_OBJECTS[num])
             self.surface.blit(image, (_x, _y))
             _x += self.cell_size_timer[0]
+
+        self.time.update() # Обновление счётчика каждый 60-й кадр, т.е. каждую секунду.
 
     def __create_number(self):
         """
@@ -252,10 +260,13 @@ if __name__ == '__main__':
     menu = Menu(screen)
     __techinkal_print_board(menu.sapper.board)
 
-    while True:
+    fps = 60
+    clock = pygame.time.Clock()
+    running = True
+    while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                terminate()
+                running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 event = event.dict
                 btn = event["button"]
@@ -267,7 +278,12 @@ if __name__ == '__main__':
 
                 if btn == 1 or btn == 3:  # Если нажата левая кнопка мыши
                     if menu.rect_board.collidepoint(mouse_pos := event["pos"]):
+                        if menu.time.state != GameStates.GAME:
+                            menu.time.state = GameStates.GAME
                         menu.get_click(mouse_pos, btn)
 
         menu.draw_board()
+        clock.tick(fps)
         pygame.display.flip()
+
+    terminate()
