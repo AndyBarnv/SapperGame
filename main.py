@@ -2,12 +2,8 @@ import pygame
 
 
 from startPage import start_page, start_screen
-
-
-class Difficult:
-    EASE = 0
-    NORMAL = 1
-    HARD = 2
+from draw_mechanics import game_page_create, game_update, Game
+from game_mechanics import Difficulties as Difficult, GameStates
 
 
 class AppStatus:
@@ -16,8 +12,8 @@ class AppStatus:
     END = 2
 
 
-FPS = 50
-difficult = Difficult.EASE
+FPS = 60
+difficult = Difficult.EASY
 status = AppStatus.START
 
 
@@ -35,10 +31,12 @@ if __name__ == '__main__':
         if status == AppStatus.START:
             if difficult := start_page(screen, btns):
                 status = AppStatus.GAME
+                game = game_page_create(difficult)
+                print(f"Играем. Сложность: {difficult}")
 
         elif status == AppStatus.GAME:
-            print(f"Играем. Сложность: {difficult}")
-
+            game = game_update(game)
+            game: Game
         pygame.display.flip()
         clock.tick(FPS)
 

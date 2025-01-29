@@ -2,6 +2,15 @@ import pygame
 import os
 import sys
 
+from game_mechanics import Difficulties
+
+
+DIFFICULTIES_DIR = {
+    "EASY": Difficulties.EASY,
+    "NORMAL": Difficulties.NORMAL,
+    "HARD": Difficulties.HARD
+}
+
 
 class Button:
     def __init__(self, surface, color: str, hover_color: str, text: str, rect: pygame.rect.Rect):
@@ -133,7 +142,7 @@ def start_page(screen, btns):
     difficult = None
     for btn in btns:
         if btn.is_pressed:
-            difficult = btn.text
+            difficult = DIFFICULTIES_DIR[btn.text]
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
