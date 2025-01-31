@@ -1,8 +1,6 @@
 import random
 import enum
 
-from pprint import pprint
-
 
 class Difficulties(enum.Enum):
     EASY = 1
@@ -99,6 +97,7 @@ class Sapper:
             for (x, y) in self.bombs:
                 self.board[y][x] = CellStates.opened_bomb
             self.state = GameStates.END
+
         elif self.board[y][x] == CellStates.hidden:
             mines = self.search_mines(x, y)
             self.board[y][x] = mines
@@ -131,7 +130,7 @@ class Time:
                 sec = self.seconds + 1
                 self.minutes += sec // 60
                 self.seconds = sec % 60
-                self.tech_print() # техническая строка
+                self.tech_print()   # техническая строка
 
     def tech_print(self):
         print(self.minutes, self.seconds)
