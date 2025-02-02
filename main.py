@@ -12,6 +12,7 @@ class AppStatus:
     END = 2
 
 
+DB_NAME = "data/game_history.db"  # Имя базы данных.
 FPS = 60
 difficult = Difficult.EASY
 status = AppStatus.START
@@ -37,6 +38,6 @@ if __name__ == '__main__':
         elif status == AppStatus.GAME:
             game = game_update(game)
             game: Game
-        pygame.display.flip()
         clock.tick(FPS)
+        pygame.display.flip()
 

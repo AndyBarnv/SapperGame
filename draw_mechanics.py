@@ -1,6 +1,9 @@
 import pygame
+import sqlite3
+
 
 from game_mechanics import Sapper, Difficulties, CellStates, GameStates, Time
+from main import DB_NAME
 from startPage import load_image, terminate
 
 
@@ -264,11 +267,14 @@ class Game:
             print("Хана. Попал на бомбу.")
             self.time.state = GameStates.END
             self.end_game()
+            safe_game(self)  # Сохранение игры в бд.
             # Нужно закончить игру и открыть все бомбы.
 
         elif self.sapper.state == GameStates.WIN:
             print('Ура, победа!')
             self.time.state = GameStates.WIN
+            safe_game(self)  # Сохранение игры в бд.
+
 
     def get_click(self, mouse_pos, btn):
         """
@@ -343,6 +349,32 @@ class Game:
             _number = "000"
 
         return [COUNTER[item] for item in _number]
+
+
+def safe_game(game):
+    """
+    Функция сохранения результатов игры в базу данных.
+    :param game:
+    :return:
+    """
+    res = 'win' if game.sapper.state == GameStates.WIN else 'failed'
+    sec = game.time.seconds
+    cells = game.sapper.opened_cells
+    if game.difficult == Difficulties.EASY:
+        diff = 'easy'
+    elif game.difficult == Difficulties.NORMAL:
+        diff = 'normal'
+    else:
+        diff = 'hard'
+
+    # con = sqlite3.connect(DB_NAME) Так строка, выглядит в итоговом варианте. Пока, чтобы не засорить бд, закомментировал её
+    cur = con.cursor()
+
+    cur.execute("""INSERT INTO games(results,time,opened_cells,difficulty) VALUES(?,?,?,?)""",
+                (res, sec, cells, diff))
+
+    con.commit()
+    con.close()
 
 
 def __techinkal_print_board(board: list):

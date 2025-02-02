@@ -118,7 +118,7 @@ class Time:
     Класс счётчика времени для таймера.
     """
     def __init__(self):
-        self.minutes = 0
+        # self.minutes = 0
         self.seconds = 0
         self.cur_frame = 0
         self.state = GameStates.PAUSE
@@ -126,11 +126,11 @@ class Time:
     def update(self):
         if self.state == GameStates.GAME:
             self.cur_frame = (self.cur_frame + 1) % 60
-            if not self.cur_frame:
+            if self.cur_frame == 0:
                 sec = self.seconds + 1
-                self.minutes += sec // 60
-                self.seconds = sec % 60
+                # self.minutes += sec // 60
+                self.seconds = sec
                 self.tech_print()   # техническая строка
 
     def tech_print(self):
-        print(self.minutes, self.seconds)
+        print(self.seconds)
