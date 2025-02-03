@@ -126,7 +126,7 @@ class Time:
     def update(self):
         if self.state == GameStates.GAME:
             self.cur_frame = (self.cur_frame + 1) % 60
-            if self.cur_frame == 0:
+            if self.cur_frame == 1:
                 sec = self.seconds + 1
                 # self.minutes += sec // 60
                 self.seconds = sec

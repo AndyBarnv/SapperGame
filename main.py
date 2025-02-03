@@ -1,7 +1,7 @@
 import pygame
 
 
-from startPage import start_page, start_screen
+from start_page import start_page_update, start_screen
 from draw_mechanics import game_page_create, game_update, Game
 from game_mechanics import Difficulties as Difficult, GameStates
 
@@ -12,7 +12,6 @@ class AppStatus:
     END = 2
 
 
-DB_NAME = "data/game_history.db"  # Имя базы данных.
 FPS = 60
 difficult = Difficult.EASY
 status = AppStatus.START
@@ -30,7 +29,7 @@ if __name__ == '__main__':
     btns = start_screen(screen, *size)
     while True:
         if status == AppStatus.START:
-            if difficult := start_page(screen, btns):
+            if difficult := start_page_update(screen, btns, size):
                 status = AppStatus.GAME
                 game = game_page_create(difficult)
                 print(f"Играем. Сложность: {difficult}")

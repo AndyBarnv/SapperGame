@@ -1,10 +1,9 @@
 import pygame
 import sqlite3
 
-
+from consts import DB_NAME
 from game_mechanics import Sapper, Difficulties, CellStates, GameStates, Time
-from main import DB_NAME
-from startPage import load_image, terminate
+from start_page import load_image, terminate
 
 
 class Counter:
@@ -367,7 +366,8 @@ def safe_game(game):
     else:
         diff = 'hard'
 
-    # con = sqlite3.connect(DB_NAME) Так строка, выглядит в итоговом варианте. Пока, чтобы не засорить бд, закомментировал её
+    # con = sqlite3.connect(DB_NAME) # Так строка, выглядит в итоговом варианте. Пока, чтобы не засорить бд, закомментировал её
+    con = sqlite3.connect("C:/Users/Andrew/pythonProjects.game_history.db")
     cur = con.cursor()
 
     cur.execute("""INSERT INTO games(results,time,opened_cells,difficulty) VALUES(?,?,?,?)""",

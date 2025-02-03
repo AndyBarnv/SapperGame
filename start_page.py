@@ -1,7 +1,9 @@
 import pygame
 import os
 import sys
+import sqlite3
 
+from consts import DB_NAME
 from game_mechanics import Difficulties
 
 
@@ -52,8 +54,8 @@ def start_render_text(screen, WIDTH, HEIGHT):
     """
     intro_text = ["САПЁР",
                   "Правила игры",
-                  "Туда сюда,",
-                  "Здесь и туда"]
+                  "Для победы необходимо найти все", "мины на игровом поле,",
+                  "используя числовые подсказки."]
 
     fon = pygame.transform.scale(load_image('img/background.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
@@ -125,17 +127,22 @@ def start_screen(screen, width, height):
     btn = Button(screen, "black", "red", "START", btn_rect)
     btns.append(btn)
 
+    btn_rect = pygame.rect.Rect((width // 2 - 75, 360), (150, 50))
+    btn = Button(screen, "black", "red", "VIEW HISTORY", btn_rect)
+    btns.append(btn)
+
     for btn in btns[1:]:
         btn.draw()
 
     return btns
 
 
-def start_page(screen, btns):
+def start_page_update(screen, btns, size):
     """
     Функция, которая обрабатывает события на окне старта.
     :param screen:
     :param btns:
+    :param size:
     :return:
     """
 
@@ -153,6 +160,9 @@ def start_page(screen, btns):
                 for btn in btns:
                     if btn.text == "START" and btn.rect.collidepoint(event["pos"]):
                         return difficult
+                    elif btn.text == "VIEW HISTORY" and btn.rect.collidepoint(event["pos"]):
+                        view_history(screen, *size)
+                        continue
 
                     if btn.rect.collidepoint(event["pos"]):
                         btn.is_pressed = True
@@ -161,6 +171,48 @@ def start_page(screen, btns):
                     else:
                         btn.is_pressed = False
                         btn.draw()
-        elif event.type == pygame.KEYDOWN or \
-                event.type == pygame.MOUSEBUTTONDOWN:
-            return difficult  # начинаем игру
+        elif event.type == pygame.KEYDOWN:
+            event = event.dict
+            if event['key'] == 13:
+                btns = start_screen(screen, *size)
+
+
+def view_history(screen, width, height):
+    """
+    Функция для отрисовки истории игр из БД.
+    :param screen:
+    :param width:
+    :param height:
+    :return:
+    """
+
+    fon = pygame.transform.scale(load_image('img/background.jpg'), (width, height))
+    screen.blit(fon, (0, 0))
+
+    con = sqlite3.connect(DB_NAME)
+    cur = con.cursor()
+    history_data = cur.execute("SELECT * FROM games").fetchall()[-1:-6:-1]
+    con.close()
+
+    text = ['История игр:', 'ID', 'Итог', 'Время', 'Открытые ячейки', 'Сложность', 'Никнейм']
+
+    lbl_font = pygame.font.Font(None, 30)
+    lbl = lbl_font.render(text[0], True, 'white')
+    screen.blit(lbl, (10, 10))
+
+    x_title = 10
+    y_title = 40
+    title_font = pygame.font.Font(None, 25)
+    for t in text[1:]:
+        title = title_font.render(t, True, 'white')
+        screen.blit(title, (x_title, y_title))
+        x_title += title.get_width() + 10
+
+    # for row in
+
+# 37
+# 85
+# 147
+# 307
+# 410
+# 492
