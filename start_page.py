@@ -14,11 +14,6 @@ DIFFICULTIES_DIR = {
 }
 
 
-horizontal_borders = pygame.sprite.Group()
-vertical_borders = pygame.sprite.Group()
-all_sprites = pygame.sprite.Group()
-
-
 class Button:
     def __init__(self, surface, color: str, hover_color: str, text: str, rect: pygame.rect.Rect):
         self.color = pygame.color.Color(color)
@@ -49,17 +44,12 @@ def draw_button(surface, text, rect, color):
     surface.blit(text_surface, text_rect)
 
 
-def draw_background(screen: pygame.surface.Surface, width, height):
-    fon = pygame.transform.scale(load_image('img/background.jpg'), (width, height))
-    screen.blit(fon, (0, 0))
-
-
-def start_render_text(screen, width, height):
+def start_render_text(screen, WIDTH, HEIGHT):
     """
     Рендерит нужный текст в нужном месте. Вспомогательная функция.
     :param screen:
-    :param width:
-    :param height:
+    :param WIDTH:
+    :param HEIGHT:
     :return:
     """
     intro_text = ["САПЁР",
@@ -67,6 +57,8 @@ def start_render_text(screen, width, height):
                   "Для победы необходимо найти все", "мины на игровом поле,",
                   "используя числовые подсказки."]
 
+    fon = pygame.transform.scale(load_image('img/background.jpg'), (WIDTH, HEIGHT))
+    screen.blit(fon, (0, 0))
     font = pygame.font.Font(None, 30)
     text_coord = 70
     for line in intro_text:
@@ -74,7 +66,7 @@ def start_render_text(screen, width, height):
         intro_rect = string_rendered.get_rect()
         text_coord += 10
         intro_rect.top = text_coord
-        intro_rect.x = width // 2 - intro_rect.width // 2
+        intro_rect.x = WIDTH // 2 - intro_rect.width // 2
         text_coord += intro_rect.height
         screen.blit(string_rendered, intro_rect)
 
@@ -112,14 +104,6 @@ def start_screen(screen, width, height):
     :param height:
     :return:
     """
-    Border(5, 5, width - 5, 5)
-    Border(5, height - 5, width - 5, height - 5)
-    Border(5, 5, 5, height - 5)
-    Border(width - 5, 5, width - 5, height - 5)
-
-    draw_background(screen, width, height)
-    all_sprites.update()
-    all_sprites.draw(screen)
     start_render_text(screen, width, height)
 
     btn_width, btn_height = (100, 50)
@@ -191,7 +175,6 @@ def start_page_update(screen, btns, size):
             event = event.dict
             if event['key'] == 13:
                 btns = start_screen(screen, *size)
-    start_screen(screen, *size)
 
 
 def view_history(screen, width, height):
@@ -208,10 +191,11 @@ def view_history(screen, width, height):
 
     con = sqlite3.connect(DB_NAME)
     cur = con.cursor()
-    history_data = cur.execute("SELECT * FROM games").fetchall()[-1:-6:-1]
+    history_data = cur.execute("SELECT * FROM games").fetchall()[-1:-15:-1]
     con.close()
 
-    text = ['История игр:', 'ID', 'Итог', 'Время', 'Открытые ячейки', 'Сложность', 'Никнейм']
+    text = ['История игр:', 'Чтобы вернуться в меню, нажмите ESCAPE.', 'ID', 'Итог',
+            'Время', 'Открытые ячейки', 'Сложность', 'Никнейм']
 
     lbl_font = pygame.font.Font(None, 30)
     lbl = lbl_font.render(text[0], True, 'white')
@@ -220,59 +204,19 @@ def view_history(screen, width, height):
     x_title = 10
     y_title = 40
     title_font = pygame.font.Font(None, 25)
-    for t in text[1:]:
+    for t in text[2:]:
         title = title_font.render(t, True, 'white')
         screen.blit(title, (x_title, y_title))
         x_title += title.get_width() + 10
 
-    # for row in
+    cell_font = pygame.font.Font(None, 20)
+    x_cells = [10, 37, 85, 147, 307, 410, 492]
+    y_cell = 60
+    for i in range(len(history_data)):
+        for j in range(len(history_data[i])):
+            cell = cell_font.render(str(history_data[i][j]), True, 'white')
+            screen.blit(cell, (x_cells[j], y_cell))
+        y_cell += 20
 
-# 37
-# 85
-# 147
-# 307
-# 410
-# 492
-
-
-class Border(pygame.sprite.Sprite):
-    # строго вертикальный или строго горизонтальный отрезок
-    def __init__(self, x1, y1, x2, y2):
-        super().__init__(all_sprites)
-        if x1 == x2:  # вертикальная стенка
-            self.add(vertical_borders)
-            self.image = pygame.Surface([1, y2 - y1])
-            self.rect = pygame.Rect(x1, y1, 1, y2 - y1)
-
-        else:  # горизонтальная стенка
-            self.add(horizontal_borders)
-            self.image = pygame.Surface([x2 - x1, 1])
-            self.rect = pygame.Rect(x1, y1, x2 - x1, 1)
-
-
-class Bomb(pygame.sprite.Sprite):
-    image = load_image("img/bomb.png")
-    image = pygame.transform.scale(image, (70, 70))
-
-    def __init__(self, group):
-        # НЕОБХОДИМО вызвать конструктор родительского класса Sprite.
-        # Это очень важно !!!
-        super().__init__(group)
-        self.image = Bomb.image
-        self.rect = self.image.get_rect()
-        self.rect.x = 7
-        self.rect.y = 7
-        self.vx = 1
-        self.vy = -1
-
-    # движение с проверкой столкновение шара со стенками
-    def update(self):
-        self.rect = self.rect.move(self.vx, self.vy)
-        if pygame.sprite.spritecollideany(self, horizontal_borders):
-            self.vy = -self.vy
-
-        if pygame.sprite.spritecollideany(self, vertical_borders):
-            self.vx = -self.vx
-
-
-Bomb(all_sprites)
+    warn = lbl_font.render(text[1], True, 'white')
+    screen.blit(warn, (10, 450))

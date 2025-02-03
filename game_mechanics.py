@@ -1,5 +1,6 @@
 import random
 import enum
+import datetime
 
 
 class Difficulties(enum.Enum):
@@ -118,19 +119,15 @@ class Time:
     Класс счётчика времени для таймера.
     """
     def __init__(self):
-        # self.minutes = 0
-        self.seconds = 0
-        self.cur_frame = 0
-        self.state = GameStates.PAUSE
+        self.start_obj = datetime.datetime.today()
+        self.sec = 0
+        self.state = GameStates.GAME
 
-    def update(self):
+    @property
+    def seconds(self):
         if self.state == GameStates.GAME:
-            self.cur_frame = (self.cur_frame + 1) % 60
-            if self.cur_frame == 1:
-                sec = self.seconds + 1
-                # self.minutes += sec // 60
-                self.seconds = sec
-                self.tech_print()   # техническая строка
-
-    def tech_print(self):
-        print(self.seconds)
+            res = (datetime.datetime.today() - self.start_obj).seconds
+            self.sec = res
+            return res
+        else:
+            return self.sec

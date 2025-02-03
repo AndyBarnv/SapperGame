@@ -3,7 +3,7 @@ import pygame
 
 from start_page import start_page_update, start_screen
 from draw_mechanics import game_page_create, game_update, Game
-from game_mechanics import Difficulties as Difficult, GameStates
+from game_mechanics import Difficulties as Difficult
 
 
 class AppStatus:

@@ -2,6 +2,7 @@ import pygame
 import sqlite3
 
 from consts import DB_NAME
+from config import NICKNAME
 from game_mechanics import Sapper, Difficulties, CellStates, GameStates, Time
 from start_page import load_image, terminate
 
@@ -318,8 +319,6 @@ class Game:
             self.surface.blit(image, (_x, _y))
             _x += self.cell_size_timer[0]
 
-        self.time.update()  # Обновление счётчика каждый 60-й кадр, т.е. каждую секунду.
-
     def draw_counter(self):
         _x = self.x_counter
         _y = self.y_counter
@@ -365,13 +364,13 @@ def safe_game(game):
         diff = 'normal'
     else:
         diff = 'hard'
+    nickname = NICKNAME
 
-    # con = sqlite3.connect(DB_NAME) # Так строка, выглядит в итоговом варианте. Пока, чтобы не засорить бд, закомментировал её
-    con = sqlite3.connect("C:/Users/Andrew/pythonProjects.game_history.db")
+    con = sqlite3.connect(DB_NAME)
     cur = con.cursor()
 
-    cur.execute("""INSERT INTO games(results,time,opened_cells,difficulty) VALUES(?,?,?,?)""",
-                (res, sec, cells, diff))
+    cur.execute("""INSERT INTO games(results,time,opened_cells,difficulty,nickname) VALUES(?,?,?,?,?)""",
+                (res, sec, cells, diff, nickname))
 
     con.commit()
     con.close()
@@ -431,40 +430,3 @@ def game_update(Game_obj: Game):
                     menu.get_click(mouse_pos, btn)
     menu.draw_board()
     return menu
-
-
-if __name__ == '__main__':
-    pygame.init()
-
-    size = WIDTH, HEIGHT = 298, 377
-    screen = pygame.display.set_mode(size)
-    menu = Game(screen)
-    __techinkal_print_board(menu.sapper.board)
-
-    fps = 60
-    clock = pygame.time.Clock()
-    running = True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                event = event.dict
-                btn = event["button"]
-                if (btn == 1 or btn == 3) and menu.smile_rect.collidepoint(event["pos"]):
-                    menu = Game(screen, menu.difficult)
-                    __techinkal_print_board(menu.sapper.board)
-                if not menu.sapper.state == GameStates.GAME:
-                    continue
-
-                if btn == 1 or btn == 3:  # Если нажата левая кнопка мыши
-                    if menu.rect_board.collidepoint(mouse_pos := event["pos"]):
-                        if menu.time.state != GameStates.GAME:
-                            menu.time.state = GameStates.GAME
-                        menu.get_click(mouse_pos, btn)
-
-        menu.draw_board()
-        clock.tick(fps)
-        pygame.display.flip()
-
-    terminate()
